@@ -54,6 +54,10 @@ namespace Practice.Controller
 		Texture2D explosionTexture;
 		List<Animation> explosions;
 
+		//Number that holds the player score
+		int score;
+		// The font used to display UI elements
+		SpriteFont font;
 
 		public Game1()
 		{
@@ -92,6 +96,7 @@ namespace Practice.Controller
 			fireTime = TimeSpan.FromSeconds(.15f);
 
 			explosions = new List<Animation>();
+			score = 0;
 			base.Initialize();
 		}
 
@@ -117,6 +122,7 @@ namespace Practice.Controller
 			projectileTexture = Content.Load<Texture2D>("Texture/laser");
 			mainBackground = Content.Load<Texture2D>("Texture/mainbackground");
 			explosionTexture = Content.Load<Texture2D>("Animation/explosion");
+			font = Content.Load<SpriteFont>("Font/gameFont");
 			Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
 			+ GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
 			player.Initialize(playerAnimation, playerPosition);
@@ -195,6 +201,10 @@ namespace Practice.Controller
 			{
 				explosions[i].Draw(spriteBatch);
 			}
+			// Draw the score
+			spriteBatch.DrawString(font, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
+			// Draw the player health
+			spriteBatch.DrawString(font, "health: " + player.Health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
 			// Stop drawing
 			spriteBatch.End();
 			// Draw the Enemies
@@ -244,6 +254,11 @@ namespace Practice.Controller
 				// Add the projectile, but add it to the front and center of the player
 				AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
 			}
+			if (player.Health <= 0)
+			{
+				player.Health = 100;
+				score = 0;
+			}
 		}
 
 
@@ -290,6 +305,8 @@ namespace Practice.Controller
 					{
 						// Add an explosion
 						AddExplosion(enemies[i].Position);
+						//Add to the player's score
+						score += enemies[i].Value;
 					}
 					enemies.RemoveAt(i);
 				}
