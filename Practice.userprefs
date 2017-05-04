@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{2621C913-C9A1-4FA0-AF36-FB55F759F1A8}|Default">
+  <MonoDevelop.Ide.ItemProperties.Practice PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Practice/Model/Player.cs">
+    <Files>
+      <File FileName="Practice/Game1.cs" Line="52" Column="1" />
+      <File FileName="Practice/Model/Player.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
