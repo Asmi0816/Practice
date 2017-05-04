@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Media;
 using Practice.View;
 using Practice.Model;
 
@@ -55,14 +53,7 @@ namespace Practice.Controller
 		TimeSpan previousFireTime;
 		Texture2D explosionTexture;
 		List<Animation> explosions;
-		// The sound that is played when a laser is fired
-		SoundEffect laserSound;
 
-		// The sound used when the player or an enemy dies
-		SoundEffect explosionSound;
-
-		// The music played during gameplay
-		Song gameplayMusic;
 
 		public Game1()
 		{
@@ -126,15 +117,6 @@ namespace Practice.Controller
 			projectileTexture = Content.Load<Texture2D>("Texture/laser");
 			mainBackground = Content.Load<Texture2D>("Texture/mainbackground");
 			explosionTexture = Content.Load<Texture2D>("Animation/explosion");
-			// Load the music
-			gameplayMusic = Content.Load<Song>("sound/gameMusic");
-
-			// Load the laser and explosion sound effect
-			laserSound = Content.Load<SoundEffect>("sound/laserFire");
-			explosionSound = Content.Load<SoundEffect>("sound/explosion");
-
-			// Start the music right away
-			PlayMusic(gameplayMusic);
 			Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
 			+ GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
 			player.Initialize(playerAnimation, playerPosition);
@@ -261,7 +243,6 @@ namespace Practice.Controller
 
 				// Add the projectile, but add it to the front and center of the player
 				AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
-				laserSound.Play();
 			}
 		}
 
@@ -309,7 +290,6 @@ namespace Practice.Controller
 					{
 						// Add an explosion
 						AddExplosion(enemies[i].Position);
-						explosionSound.Play();
 					}
 					enemies.RemoveAt(i);
 				}
@@ -420,21 +400,6 @@ namespace Practice.Controller
 					explosions.RemoveAt(i);
 				}
 			}
-		}
-
-		private void PlayMusic(Song song)
-		{
-			// Due to the way the MediaPlayer plays music,
-			// we have to catch the exception. Music will play when the game is not tethered
-			try
-			{
-				// Play the music
-				MediaPlayer.Play(song);
-
-				// Loop the currently playing song
-				MediaPlayer.IsRepeating = true;
-			}
-			catch { }
 		}
 	}
 }
