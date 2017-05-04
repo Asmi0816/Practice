@@ -37,11 +37,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Game1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="Controller\Program.cs" />
-    <Compile Include="Controller\SpaceShooter.cs" />
+    <Compile Include="View\Animation.cs" />
+    <Compile Include="Controller\Game1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Icon.png" />

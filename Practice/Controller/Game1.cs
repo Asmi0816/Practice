@@ -3,8 +3,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-namespace Practice
+using Practice.View;
+using Practice.Model;
+
+namespace Practice.Controller
 {
 	/// <summary>
 	/// This is the main type for your game.
@@ -44,8 +46,7 @@ namespace Practice
 			// Set a constant player move speed
 		playerMoveSpeed = 8.0f;
 
-		//Enable the FreeDrag gesture.
-		TouchPanel.EnabledGestures = GestureType.FreeDrag;
+		
 			base.Initialize();
 		}
 
@@ -60,9 +61,14 @@ namespace Practice
 
 			//TODO: use this.Content to load your game content here 
 
-			Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
-												 + GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
-			player.Initialize(Content.Load<Texture2D>("Texture/Player"), playerPosition);		
+
+		Animation playerAnimation = new Animation();
+		Texture2D playerTexture = Content.Load<Texture2D>("Animation/shipAnimation");
+		playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
+
+		Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
+		+ GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
+		player.Initialize(playerAnimation, playerPosition);		
 		}
 
 		/// <summary>
@@ -72,6 +78,7 @@ namespace Practice
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update(GameTime gameTime)
 		{
+			player.Update(gameTime);
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			// Exit() is obsolete on iOS
 			#if !__IOS__ && !__TVOS__
