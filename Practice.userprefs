@@ -1,13 +1,14 @@
 ﻿<Properties StartupConfiguration="{2621C913-C9A1-4FA0-AF36-FB55F759F1A8}|Default">
   <MonoDevelop.Ide.ItemProperties.Practice PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Practice/Model/Projectile.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Practice/Controller/Game1.cs">
     <Files>
-      <File FileName="Practice/Model/Player.cs" Line="3" Column="1" />
-      <File FileName="Practice/View/Animation.cs" Line="122" Column="1" />
-      <File FileName="Practice/Controller/Game1.cs" Line="141" Column="22" />
-      <File FileName="Practice/View/ParallaxingBackground.cs" Line="19" Column="4" />
-      <File FileName="Practice/Model/Enemy.cs" Line="97" Column="3" />
-      <File FileName="Practice/Model/Projectile.cs" Line="3" Column="40" />
+      <File FileName="Practice/Controller/Game1.cs" Line="140" Column="4" />
+      <File FileName="Practice/Model/Player.cs" Line="33" Column="1" />
+      <File FileName="Practice/Model/Projectile.cs" Line="72" Column="1" />
+      <File FileName="Practice/Model/Enemy.cs" Line="77" Column="10" />
+      <File FileName="Practice/Model/Mortar.cs" Line="70" Column="13" />
+      <File FileName="Practice/View/Animation.cs" Line="52" Column="61" />
+      <File FileName="Practice/Model/NewProjectile.cs" Line="45" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

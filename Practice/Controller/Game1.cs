@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Practice.View;
 using Practice.Model;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace Practice.Controller
 {
@@ -38,6 +40,10 @@ namespace Practice.Controller
 		Texture2D enemyTexture;
 		List<Enemy> enemies;
 
+		// Enemies
+		Texture2D bulletTexture;
+		List<Mortar> bullets;
+
 		// The rate at which the enemies appear
 		TimeSpan enemySpawnTime;
 		TimeSpan previousSpawnTime;
@@ -48,11 +54,28 @@ namespace Practice.Controller
 		Texture2D projectileTexture;
 		List<Projectile> projectiles;
 
+		Texture2D missileTexture;
+		List<NewProjectile> missiles;
+
 		// The rate of fire of the player laser
 		TimeSpan fireTime;
 		TimeSpan previousFireTime;
+
+
+		TimeSpan blastTime;
+		TimeSpan previousBlastTime;
+
 		Texture2D explosionTexture;
 		List<Animation> explosions;
+
+		// The sound that is played when a laser is fired
+		SoundEffect laserSound;
+
+		// The sound used when the player or an enemy dies
+		SoundEffect explosionSound;
+		SoundEffect launchSound;
+		// The music played during gameplay
+		Song gameplayMusic;
 
 		//Number that holds the player score
 		int score;
@@ -84,19 +107,23 @@ namespace Practice.Controller
 
 			// Set the time keepers to zero
 			previousSpawnTime = TimeSpan.Zero;
-
+			previousBlastTime = TimeSpan.Zero;
 			// Used to determine how fast enemy respawns
 			enemySpawnTime = TimeSpan.FromSeconds(1.0f);
 
 			// Initialize our random number generator
 			random = new Random();
 			projectiles = new List<Projectile>();
+			missiles = new List<NewProjectile>();
+			bullets = new List<Mortar>();
 
 			// Set the laser to fire every quarter second
 			fireTime = TimeSpan.FromSeconds(.15f);
+			blastTime = TimeSpan.FromSeconds(2.9f);
 
 			explosions = new List<Animation>();
 			score = 0;
+
 			base.Initialize();
 		}
 
@@ -113,6 +140,7 @@ namespace Practice.Controller
 
 
 			Animation playerAnimation = new Animation();
+			bulletTexture = Content.Load<Texture2D>("Animation/Rock");
 			Texture2D playerTexture = Content.Load<Texture2D>("Animation/shipAnimation");
 			playerAnimation.Initialize(playerTexture, Vector2.Zero, 115, 69, 8, 30, Color.White, 1f, true);
 			// Load the parallaxing background
@@ -122,10 +150,22 @@ namespace Practice.Controller
 			projectileTexture = Content.Load<Texture2D>("Texture/laser");
 			mainBackground = Content.Load<Texture2D>("Texture/mainbackground");
 			explosionTexture = Content.Load<Texture2D>("Animation/explosion");
+			// Load the music
+			gameplayMusic = Content.Load<Song>("sound/gameMusic");
+
+			// Load the laser and explosion sound effect
+			laserSound = Content.Load<SoundEffect>("sound/laserFire");
+			explosionSound = Content.Load<SoundEffect>("sound/explosion");
+			launchSound = Content.Load<SoundEffect>("sound/launch");
+			// Start the music right away
+			PlayMusic(gameplayMusic);
+			missileTexture = Content.Load<Texture2D>("Texture/missile");
 			font = Content.Load<SpriteFont>("Font/gameFont");
 			Vector2 playerPosition = new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y
 			+ GraphicsDevice.Viewport.TitleSafeArea.Height / 2);
 			player.Initialize(playerAnimation, playerPosition);
+
+
 		}
 
 		/// <summary>
@@ -164,6 +204,8 @@ namespace Practice.Controller
 			// Update the collision
 			UpdateCollision();
 			UpdateProjectiles();
+			UpdateMissiles();
+			UpdateBullets();
 			UpdateExplosions(gameTime);
 			base.Update(gameTime);
 		}
@@ -197,9 +239,18 @@ namespace Practice.Controller
 			{
 				projectiles[i].Draw(spriteBatch);
 			}
+
+			for (int i = 0; i < missiles.Count; i++)
+			{
+				missiles[i].Draw(spriteBatch);
+			}
 			for (int i = 0; i < explosions.Count; i++)
 			{
 				explosions[i].Draw(spriteBatch);
+			}
+			for (int i = 0; i < bullets.Count; i++)
+			{
+				bullets[i].Draw(spriteBatch);
 			}
 			// Draw the score
 			spriteBatch.DrawString(font, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
@@ -210,6 +261,27 @@ namespace Practice.Controller
 			// Draw the Enemies
 
 			base.Draw(gameTime);
+		}
+
+
+
+
+		private void UpdateBullets()
+		{
+			// Update the Projectiles
+			for (int i = bullets.Count - 1; i >= 0; i--)
+			{
+
+				bullets[i].Update();
+
+				if (bullets[i].Active == false)
+				{
+					bullets.RemoveAt(i);
+				}
+
+			}
+
+
 		}
 
 
@@ -253,7 +325,38 @@ namespace Practice.Controller
 
 				// Add the projectile, but add it to the front and center of the player
 				AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
+				laserSound.Play();
+
 			}
+			if (gameTime.TotalGameTime - previousBlastTime > blastTime)
+			{
+				// Reset our current time
+				if (currentKeyboardState.IsKeyDown(Keys.Space))
+				{
+					previousBlastTime = gameTime.TotalGameTime;
+
+					// Add the projectile, but add it to the front and center of the player
+					AddMissiles(player.Position + new Vector2(player.Width / 2, 0));
+					launchSound.Play();
+				}
+			}
+
+			if (gameTime.TotalGameTime - previousBlastTime > blastTime)
+			{
+
+				if (currentKeyboardState.IsKeyDown(Keys.I))
+				{
+					previousBlastTime = gameTime.TotalGameTime;
+
+					// Add the projectile, but add it to the front and center of the player
+					//AddBullets(player.Position + new Vector2(player.Width / 2, 0));
+					AddBullets(player.Position);
+				}
+				// Reset our current time
+
+			}
+
+
 			if (player.Health <= 0)
 			{
 				player.Health = 100;
@@ -305,6 +408,8 @@ namespace Practice.Controller
 					{
 						// Add an explosion
 						AddExplosion(enemies[i].Position);
+						explosionSound.Play();
+
 						//Add to the player's score
 						score += enemies[i].Value;
 					}
@@ -374,6 +479,50 @@ namespace Practice.Controller
 					}
 				}
 			}
+			for (int i = 0; i < missiles.Count; i++)
+			{
+				for (int j = 0; j < enemies.Count; j++)
+				{
+					// Create the rectangles we need to determine if we collided with each other
+					rectangle1 = new Rectangle((int)missiles[i].Position.X -
+					missiles[i].Width / 2, (int)missiles[i].Position.Y -
+					missiles[i].Height / 2, missiles[i].Width, missiles[i].Height);
+
+					rectangle2 = new Rectangle((int)enemies[j].Position.X - enemies[j].Width / 2,
+					(int)enemies[j].Position.Y - enemies[j].Height / 2,
+					enemies[j].Width, enemies[j].Height);
+
+					// Determine if the two objects collided with each other
+					if (rectangle1.Intersects(rectangle2))
+					{
+						enemies[j].Health -= missiles[i].Damage;
+						score += 200;
+					}
+				}
+			}
+
+			for (int i = 0; i < bullets.Count; i++)
+			{
+				for (int j = 0; j < enemies.Count; j++)
+				{
+					// Create the rectangles we need to determine if we collided with each other
+					rectangle1 = new Rectangle((int)bullets[i].Position.X -
+					bullets[i].Width / 2, (int)bullets[i].Position.Y -
+					bullets[i].Height / 2, bullets[i].Width, bullets[i].Height);
+
+					rectangle2 = new Rectangle((int)enemies[j].Position.X - enemies[j].Width / 2,
+					(int)enemies[j].Position.Y - enemies[j].Height / 2,
+					enemies[j].Width, enemies[j].Height);
+
+					// Determine if the two objects collided with each other
+					if (rectangle1.Intersects(rectangle2))
+					{
+						enemies[j].Health -= bullets[i].Damage;
+						score += 5000;
+						bullets[i].Active = false;
+					}
+				}
+			}
 
 		}
 
@@ -384,6 +533,33 @@ namespace Practice.Controller
 			projectiles.Add(projectile);
 		}
 
+
+		private void AddMissiles(Vector2 position)
+		{
+			NewProjectile missile = new NewProjectile();
+			missile.Initialize(GraphicsDevice.Viewport, missileTexture, position);
+			missiles.Add(missile);
+		}
+
+
+
+
+		private void AddBullets(Vector2 position)
+		{
+			// Create the animation object
+			Animation bulletsAnimation = new Animation();
+
+			// Initialize the animation with the correct animation information
+			bulletsAnimation.Initialize(bulletTexture, Vector2.Zero, 160, 160, 8, 40, Color.White, 1f, true);
+			//bulletAnimation.Initialize(explosionTexture, Vector2.Zero, 134, 134, 12, 45, Color.White, 1f, true);
+			Mortar bullet = new Mortar();
+
+
+			bullet.Initialize(bulletsAnimation, position, GraphicsDevice.Viewport);
+
+
+			bullets.Add(bullet);
+		}
 
 		private void UpdateProjectiles()
 		{
@@ -417,6 +593,35 @@ namespace Practice.Controller
 					explosions.RemoveAt(i);
 				}
 			}
+		}
+
+		private void UpdateMissiles()
+		{
+			// Update the Projectiles
+			for (int i = missiles.Count - 1; i >= 0; i--)
+			{
+				missiles[i].Update();
+
+				if (missiles[i].Active == false)
+				{
+					missiles.RemoveAt(i);
+				}
+
+			}
+		}
+		private void PlayMusic(Song song)
+		{
+			// Due to the way the MediaPlayer plays music,
+			// we have to catch the exception. Music will play when the game is not tethered
+			try
+			{
+				// Play the music
+				MediaPlayer.Play(song);
+
+				// Loop the currently playing song
+				MediaPlayer.IsRepeating = true;
+			}
+			catch { }
 		}
 	}
 }
